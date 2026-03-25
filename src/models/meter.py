@@ -14,6 +14,7 @@ from sqlalchemy import (
     Date,
     Text,
     UniqueConstraint,
+    func,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -172,7 +173,7 @@ class MeterReading(BaseModel):
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
-        default="now()",
+        default=func.now(),
     )
 
     # Связи
@@ -242,10 +243,3 @@ class OCRProcessingLog(BaseModel):
 # Импорты для связей
 from src.models.building import Premise  # noqa: E402
 from src.models.user import User  # noqa: E402
-
-# Добавляем связь в модель User
-User.verified_readings = relationship(  # type: ignore[attr-defined]
-    "MeterReading",
-    foreign_keys="MeterReading.verified_by",
-    lazy="selectin",
-)

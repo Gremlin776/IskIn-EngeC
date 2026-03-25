@@ -273,10 +273,3 @@ class DetectedDefect(BaseModel, TimestampMixin):
 # Импорты для связей
 from src.models.building import Building, Premise  # noqa: E402
 from src.models.user import User  # noqa: E402
-
-# Добавляем связь в модель User
-User.reviewed_defects = relationship(  # type: ignore[attr-defined]
-    "DetectedDefect",
-    foreign_keys="DetectedDefect.reviewed_by",
-    lazy="selectin",
-)

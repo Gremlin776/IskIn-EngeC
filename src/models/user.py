@@ -12,7 +12,7 @@ from src.models.base import BaseModel, TimestampMixin
 class User(BaseModel, TimestampMixin):
     """
     Пользователь системы.
-    
+
     Роли:
     - admin: полный доступ
     - engineer: доступ к функциям инженера
@@ -63,6 +63,18 @@ class User(BaseModel, TimestampMixin):
     )
     reports: Mapped[list["Report"]] = relationship(
         back_populates="user",
+        lazy="selectin",
+    )
+    comments: Mapped[list["RepairComment"]] = relationship(
+        back_populates="user",
+        lazy="selectin",
+    )
+    verified_readings: Mapped[list["MeterReading"]] = relationship(
+        back_populates="verifier",
+        lazy="selectin",
+    )
+    reviewed_defects: Mapped[list["DetectedDefect"]] = relationship(
+        back_populates="reviewer",
         lazy="selectin",
     )
 
