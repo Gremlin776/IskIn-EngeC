@@ -17,7 +17,8 @@ from src.repositories.defect_repository import (
 )
 from src.core.exceptions import NotFoundException, MLException
 from src.core.logging import get_logger
-from src.ml.detection.yolo_engine import YOLOEngine
+from src.core.config import get_settings
+from src.ml.detection.yolo_engine import YOLODefectEngine, YOLOEngineConfig
 
 logger = get_logger(__name__)
 
@@ -38,7 +39,9 @@ class DefectService:
         self.repository = DefectRepository(session)
         self.inspection_repository = InspectionRepository(session)
         self.class_repository = DefectClassRepository(session)
-        self.yolo_engine = YOLOEngine()
+        settings = get_settings()
+        yolo_config = YOLOEngineConfig(weights_path=settings.yolo_model_path)
+        self.yolo_engine = YOLODefectEngine(yolo_config)
 
     def _generate_inspection_number(self) -> str:
         """Генерация номера обследования"""

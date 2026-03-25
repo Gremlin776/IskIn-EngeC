@@ -8,8 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 from pathlib import Path
 
-from src.core.database import get_db
-from src.api.deps import CurrentUser
+from src.api.deps import CurrentUser, get_current_user, get_db
 from src.services.report_service import ReportService
 from src.api.v1.schemas.report import (
     ReportCreate, ReportResponse,
@@ -27,7 +26,7 @@ router = APIRouter()
 @router.get("/templates", response_model=list[ReportTemplateResponse])
 async def get_templates(
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Получение шаблонов отчётов"""
     service = ReportService(db)
@@ -39,7 +38,7 @@ async def get_templates(
 async def create_template(
     data: ReportTemplateCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Создание шаблона"""
     service = ReportService(db)
@@ -56,7 +55,7 @@ async def get_reports(
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=500),
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Получение списка отчётов"""
     service = ReportService(db)
@@ -68,7 +67,7 @@ async def get_reports(
 async def create_report(
     data: ReportCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Создание отчёта вручную"""
     service = ReportService(db)
@@ -82,7 +81,7 @@ async def create_report(
 async def get_report(
     report_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Получение отчёта по ID"""
     service = ReportService(db)
@@ -96,7 +95,7 @@ async def get_report(
 async def delete_report(
     report_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Удаление отчёта"""
     service = ReportService(db)
@@ -109,7 +108,7 @@ async def delete_report(
 async def download_report(
     report_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Скачать файл отчёта"""
     service = ReportService(db)
@@ -133,7 +132,7 @@ async def download_report(
 async def generate_repair_report(
     data: ReportGenerateRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Генерация отчёта по ремонту через LLM"""
     service = ReportService(db)
@@ -148,7 +147,7 @@ async def generate_repair_report(
 async def generate_inspection_report(
     data: ReportGenerateRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Генерация отчёта по обследованию через LLM"""
     service = ReportService(db)
@@ -163,7 +162,7 @@ async def generate_inspection_report(
 async def generate_monthly_report(
     data: ReportGenerateRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Генерация ежемесячного отчёта"""
     service = ReportService(db)

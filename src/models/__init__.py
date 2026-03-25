@@ -2,6 +2,8 @@
 SQLAlchemy ORM модели
 """
 
+from datetime import datetime, date
+
 from src.models.base import BaseModel, TimestampMixin
 from src.models.user import User
 from src.models.building import Building, Premise

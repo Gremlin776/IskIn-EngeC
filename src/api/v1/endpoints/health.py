@@ -6,9 +6,9 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 
-from src.core.database import get_db
 from src.core.config import get_settings
 from src.api.v1.schemas.common import HealthResponse
+from src.api.deps import get_db
 
 router = APIRouter()
 settings = get_settings()

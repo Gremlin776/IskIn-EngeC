@@ -2,7 +2,7 @@
 Модель пользователя
 """
 
-from datetime import datetime
+from datetime import datetime, date
 from sqlalchemy import String, Boolean, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 

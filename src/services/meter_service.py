@@ -17,7 +17,7 @@ from src.repositories.meter_repository import (
 )
 from src.core.exceptions import NotFoundException, ValidationException, MLException
 from src.core.logging import get_logger
-from src.ml.ocr.engine import OCREngine
+from src.ml.ocr.engine import EasyOCREngine
 
 logger = get_logger(__name__)
 
@@ -38,7 +38,7 @@ class MeterService:
         self.repository = MeterRepository(session)
         self.type_repository = MeterTypeRepository(session)
         self.ocr_log_repository = OCRProcessingLogRepository(session)
-        self.ocr_engine = OCREngine()
+        self.ocr_engine = EasyOCREngine()
 
     async def create_meter(
         self,

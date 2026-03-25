@@ -9,9 +9,8 @@ from pathlib import Path
 import shutil
 import uuid
 
-from src.core.database import get_db
 from src.core.config import get_settings
-from src.api.deps import CurrentUser
+from src.api.deps import CurrentUser, get_current_user, get_db
 from src.services.repair_service import RepairService
 from src.api.v1.schemas.repair import (
     RepairRequestCreate, RepairRequestUpdate, RepairRequestResponse,
@@ -30,7 +29,7 @@ settings = get_settings()
 @router.get("/types", response_model=list[RepairTypeResponse])
 async def get_repair_types(
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Получение списка типов ремонта"""
     service = RepairService(db)
@@ -42,7 +41,7 @@ async def get_repair_types(
 async def create_repair_type(
     data: RepairTypeCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Создание типа ремонта"""
     service = RepairService(db)
@@ -61,7 +60,7 @@ async def get_repair_requests(
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=500),
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Получение списка заявок с фильтрами"""
     service = RepairService(db)
@@ -77,7 +76,7 @@ async def get_repair_requests(
 async def create_repair_request(
     data: RepairRequestCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Создание заявки на ремонт"""
     service = RepairService(db)
@@ -91,7 +90,7 @@ async def create_repair_request(
 async def get_repair_request(
     request_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Получение заявки по ID"""
     service = RepairService(db)
@@ -109,7 +108,7 @@ async def update_repair_request(
     request_id: int,
     data: RepairRequestUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Обновление заявки"""
     service = RepairService(db)
@@ -126,7 +125,7 @@ async def update_repair_status(
     request_id: int,
     data: RepairRequestStatusUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Изменение статуса заявки"""
     service = RepairService(db)
@@ -140,7 +139,7 @@ async def update_repair_status(
 async def delete_repair_request(
     request_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Удаление заявки"""
     service = RepairService(db)
@@ -162,7 +161,7 @@ async def upload_repair_photo(
     description: Optional[str] = None,
     is_main: bool = False,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Загрузка фото к заявке"""
     # Сохраняем файл
@@ -196,7 +195,7 @@ async def add_comment(
     request_id: int,
     data: RepairCommentCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Добавление комментария к заявке"""
     service = RepairService(db)
@@ -214,7 +213,7 @@ async def add_comment(
 @router.get("/stats/summary", response_model=RepairStatsResponse)
 async def get_repair_stats(
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Сводная статистика по ремонтам"""
     service = RepairService(db)

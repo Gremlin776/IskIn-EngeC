@@ -9,9 +9,8 @@ from pathlib import Path
 import shutil
 import uuid
 
-from src.core.database import get_db
 from src.core.config import get_settings
-from src.api.deps import CurrentUser
+from src.api.deps import CurrentUser, get_current_user, get_db
 from src.services.defect_service import DefectService
 from src.api.v1.schemas.defect import (
     InspectionCreate, InspectionUpdate, InspectionResponse,
@@ -30,7 +29,7 @@ settings = get_settings()
 @router.get("/classes", response_model=list[DefectClassResponse])
 async def get_defect_classes(
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Получение классов дефектов"""
     service = DefectService(db)
@@ -42,7 +41,7 @@ async def get_defect_classes(
 async def create_defect_class(
     data: DefectClassCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Создание класса дефекта"""
     service = DefectService(db)
@@ -60,7 +59,7 @@ async def get_inspections(
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=500),
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Получение списка обследований"""
     service = DefectService(db)
@@ -74,7 +73,7 @@ async def get_inspections(
 async def create_inspection(
     data: InspectionCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Создание обследования"""
     service = DefectService(db)
@@ -88,7 +87,7 @@ async def create_inspection(
 async def get_inspection(
     inspection_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Получение обследования по ID"""
     service = DefectService(db)
@@ -103,7 +102,7 @@ async def update_inspection(
     inspection_id: int,
     data: InspectionUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Обновление обследования"""
     service = DefectService(db)
@@ -127,7 +126,7 @@ async def upload_inspection_photo(
     description: Optional[str] = None,
     location_desc: Optional[str] = None,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Загрузка фото обследования"""
     upload_dir = Path(settings.upload_dir) / "inspections" / str(inspection_id)
@@ -153,7 +152,7 @@ async def upload_inspection_photo(
 async def analyze_inspection(
     inspection_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Запуск YOLO анализа всех фото обследования"""
     service = DefectService(db)
@@ -170,7 +169,7 @@ async def analyze_inspection(
 async def get_inspection_defects(
     inspection_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Дефекты обследования"""
     service = DefectService(db)
@@ -186,7 +185,7 @@ async def review_defect(
     defect_id: int,
     data: DefectReviewRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Ревью дефекта инженером"""
     service = DefectService(db)
@@ -208,7 +207,7 @@ async def review_defect(
 @router.get("/stats/summary", response_model=DefectStatsResponse)
 async def get_defect_stats(
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Сводная статистика по дефектам"""
     service = DefectService(db)

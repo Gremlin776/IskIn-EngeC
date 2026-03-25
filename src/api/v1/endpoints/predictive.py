@@ -5,8 +5,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.database import get_db
-from src.api.deps import CurrentUser
+from src.api.deps import CurrentUser, get_current_user, get_db
 from src.services.predictive_service import PredictiveService
 from src.api.v1.schemas.predictive import (
     PredictionResponse, RiskRatingResponse,
@@ -24,7 +23,7 @@ router = APIRouter()
 @router.get("/failures", response_model=list[PredictionResponse])
 async def get_predictions(
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Список всех прогнозов поломок"""
     service = PredictiveService(db)
@@ -35,7 +34,7 @@ async def get_predictions(
 async def get_prediction(
     prediction_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Детали прогноза"""
     service = PredictiveService(db)
@@ -54,7 +53,7 @@ async def analyze_building(
     building_id: int,
     data: PredictiveAnalyzeRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Анализ рисков здания"""
     service = PredictiveService(db)
@@ -66,7 +65,7 @@ async def analyze_meter(
     meter_id: int,
     data: PredictiveAnalyzeRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Анализ риска счётчика"""
     service = PredictiveService(db)
@@ -78,7 +77,7 @@ async def analyze_premise(
     premise_id: int,
     data: PredictiveAnalyzeRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Анализ рисков помещения"""
     service = PredictiveService(db)
@@ -92,7 +91,7 @@ async def analyze_premise(
 @router.get("/risk/buildings")
 async def get_building_risk_rating(
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Рейтинг зданий по уровню риска"""
     service = PredictiveService(db)
@@ -103,7 +102,7 @@ async def get_building_risk_rating(
 @router.get("/risk/equipment")
 async def get_equipment_risk_rating(
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Рейтинг оборудования по вероятности поломки"""
     service = PredictiveService(db)
@@ -118,7 +117,7 @@ async def get_equipment_risk_rating(
 @router.post("/retrain", response_model=RetrainResponse)
 async def retrain_model(
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Переобучение предиктивной модели"""
     service = PredictiveService(db)
@@ -128,7 +127,7 @@ async def retrain_model(
 @router.get("/model-info", response_model=ModelInfoResponse)
 async def get_model_info(
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Информация о текущей модели"""
     service = PredictiveService(db)

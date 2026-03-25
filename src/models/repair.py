@@ -3,7 +3,7 @@
 """
 
 from decimal import Decimal
-from datetime import date
+from datetime import datetime, date
 from sqlalchemy import (
     String,
     Integer,
@@ -191,7 +191,7 @@ class RepairPhoto(BaseModel):
         Boolean,
         default=False,
     )
-    uploaded_at: Mapped[DateTime] = mapped_column(
+    uploaded_at: Mapped[datetime] = mapped_column(
         default="now()",
     )
 

@@ -9,8 +9,7 @@ from sqlalchemy import select
 from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 
-from src.core.database import get_db
-from src.api.deps import CurrentUser
+from src.api.deps import CurrentUser, get_current_user, get_db
 from src.models.repair import Premise
 
 router = APIRouter()
@@ -64,7 +63,7 @@ async def get_premises(
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=500),
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Получение списка помещений с фильтрами"""
     query = select(Premise)
@@ -82,7 +81,7 @@ async def get_premises(
 async def create_premise(
     data: PremiseCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Создание помещения"""
     premise = Premise(**data.model_dump())
@@ -96,7 +95,7 @@ async def create_premise(
 async def get_premise(
     premise_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Получение помещения по ID"""
     result = await db.execute(
@@ -116,7 +115,7 @@ async def update_premise(
     premise_id: int,
     data: PremiseUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Обновление помещения"""
     result = await db.execute(
@@ -141,7 +140,7 @@ async def update_premise(
 async def delete_premise(
     premise_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Удаление помещения (мягкое)"""
     result = await db.execute(

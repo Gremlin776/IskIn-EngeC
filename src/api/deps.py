@@ -89,6 +89,6 @@ async def get_current_engineer_user(
 
 # Типовые аннотации
 DbSession = Annotated[AsyncSession, Depends(get_db)]
-CurrentUser = Annotated[User, Depends(get_current_user)]
+CurrentUser = User
 CurrentAdmin = Annotated[User, Depends(get_current_admin_user)]
 CurrentEngineer = Annotated[User, Depends(get_current_engineer_user)]

@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 """
 Сервис для генерации отчётов
 """
 
 import uuid
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from typing import Any
 from pathlib import Path
 

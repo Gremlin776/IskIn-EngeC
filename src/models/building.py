@@ -3,6 +3,7 @@
 """
 
 from decimal import Decimal
+from datetime import datetime, date
 from sqlalchemy import String, Integer, Boolean, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 

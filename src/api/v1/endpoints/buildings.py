@@ -9,10 +9,9 @@ from sqlalchemy import select, func
 from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 
-from src.core.database import get_db
 from src.core.exceptions import NotFoundException
-from src.api.deps import CurrentUser
-from src.models.repair import Building, Premise
+from src.api.deps import CurrentUser, get_current_user, get_db
+from src.models.building import Building, Premise
 
 router = APIRouter()
 
@@ -64,7 +63,7 @@ async def get_buildings(
     limit: int = Query(default=100, ge=1, le=500),
     is_active: Optional[bool] = Query(default=None),
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Получение списка зданий"""
     query = select(Building)
@@ -80,7 +79,7 @@ async def get_buildings(
 async def create_building(
     data: BuildingCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Создание нового здания"""
     building = Building(**data.model_dump())
@@ -94,7 +93,7 @@ async def create_building(
 async def get_building(
     building_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Получение здания по ID"""
     result = await db.execute(
@@ -114,7 +113,7 @@ async def update_building(
     building_id: int,
     data: BuildingUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Обновление здания"""
     result = await db.execute(
@@ -139,7 +138,7 @@ async def update_building(
 async def delete_building(
     building_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Удаление здания (мягкое — is_active=False)"""
     result = await db.execute(
@@ -159,7 +158,7 @@ async def delete_building(
 async def get_building_stats(
     building_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Статистика по зданию"""
     # Количество помещений

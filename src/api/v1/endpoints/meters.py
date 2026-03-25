@@ -9,9 +9,8 @@ from pathlib import Path
 import shutil
 import uuid
 
-from src.core.database import get_db
 from src.core.config import get_settings
-from src.api.deps import CurrentUser
+from src.api.deps import CurrentUser, get_current_user, get_db
 from src.services.meter_service import MeterService
 from src.api.v1.schemas.meter import (
     MeterCreate, MeterUpdate, MeterResponse,
@@ -31,7 +30,7 @@ settings = get_settings()
 @router.get("/types", response_model=list[MeterTypeResponse])
 async def get_meter_types(
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Получение типов счётчиков"""
     service = MeterService(db)
@@ -43,7 +42,7 @@ async def get_meter_types(
 async def create_meter_type(
     data: MeterTypeCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Создание типа счётчика"""
     service = MeterService(db)
@@ -61,7 +60,7 @@ async def get_meters(
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=500),
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Получение списка счётчиков"""
     service = MeterService(db)
@@ -75,7 +74,7 @@ async def get_meters(
 async def create_meter(
     data: MeterCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Создание счётчика"""
     service = MeterService(db)
@@ -86,7 +85,7 @@ async def create_meter(
 async def get_meter(
     meter_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Получение счётчика по ID"""
     service = MeterService(db)
@@ -104,7 +103,7 @@ async def update_meter(
     meter_id: int,
     data: MeterUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Обновление счётчика"""
     service = MeterService(db)
@@ -118,7 +117,7 @@ async def update_meter(
 async def delete_meter(
     meter_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Удаление счётчика"""
     service = MeterService(db)
@@ -135,7 +134,7 @@ async def delete_meter(
 async def get_readings(
     meter_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """История показаний счётчика"""
     service = MeterService(db)
@@ -148,7 +147,7 @@ async def add_reading(
     meter_id: int,
     data: MeterReadingCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Ручное добавление показания"""
     service = MeterService(db)
@@ -166,7 +165,7 @@ async def ocr_reading(
     meter_id: int,
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """OCR обработка фото счётчика"""
     # Сохраняем фото
@@ -195,7 +194,7 @@ async def get_consumption_stats(
     meter_id: int = Query(...),
     months: int = Query(default=6, ge=1, le=24),
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Статистика потребления по периодам"""
     service = MeterService(db)
@@ -206,7 +205,7 @@ async def get_consumption_stats(
 async def get_due_verification(
     days_ahead: int = Query(default=30, ge=1, le=365),
     db: AsyncSession = Depends(get_db),
-    current_user: CurrentUser = Depends(),
+    current_user: CurrentUser = Depends(get_current_user),
 ):
     """Счётчики с предстоящей поверкой"""
     service = MeterService(db)
