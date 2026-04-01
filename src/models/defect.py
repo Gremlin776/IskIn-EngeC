@@ -3,7 +3,7 @@
 Модели детекции дефектов конструкций
 """
 
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from sqlalchemy import (
     String,
     Integer,
@@ -174,7 +174,7 @@ class InspectionPhoto(BaseModel):
     )
     uploaded_at: Mapped[datetime] = mapped_column(
         DateTime,
-        default=datetime.utcnow,
+        default=lambda: datetime.now(timezone.utc),
         server_default=func.now(),
     )
 

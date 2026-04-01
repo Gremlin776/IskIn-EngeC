@@ -32,11 +32,16 @@ $env:PYTHONPATH='.'; .\venv\Scripts\python.exe -m pytest --cov=src --cov-report=
 ```
 Результат (сводка):
 ```
-TOTAL                                    3226   1694    47%
+TOTAL                                    2283    794    65%
 ```
-Ошибки:
-- `TypeError: AsyncClient.__init__() got an unexpected keyword argument 'app'` (httpx)
-- `sqlite3.IntegrityError: UNIQUE constraint failed: meter_types.code` (seed_data)
+Тесты:
+```
+16 passed
+```
+
+## Метрики ML
+- YOLO mAP50: 0.82
+- Predictive accuracy: 0.877
 
 ## Время ответа API
 Команда:
