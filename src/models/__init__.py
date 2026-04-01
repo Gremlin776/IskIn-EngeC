@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 SQLAlchemy ORM модели
 """

@@ -1,4 +1,5 @@
-﻿"""
+# -*- coding: utf-8 -*-
+"""
 Модель прогнозирования отказов оборудования.
 """
 
@@ -272,7 +273,7 @@ class FailureForecaster(BaseMLModel[dict[str, float] | list[float] | tuple[float
                 model_name=self.meta.name,
             )
 
-        # Эвристический fallback для безопасного запуска до обучения модели.
+        # Эвристический резервный сценарий для безопасного запуска до обучения модели.
         return self._heuristic_probability(feature_vector)
 
     def _heuristic_probability(self, vector: list[float]) -> float:

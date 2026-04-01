@@ -1,4 +1,5 @@
-﻿"""
+# -*- coding: utf-8 -*-
+"""
 Извлечение признаков для predictive-модели отказов/аномалий.
 """
 
@@ -332,7 +333,7 @@ class PredictiveFeatureExtractor:
                 except ValueError:
                     continue
 
-            # Fallback на ISO с timezone, если есть.
+            # Резервный разбор через ISO-формат с таймзоной, если она присутствует.
             try:
                 return datetime.fromisoformat(value.replace("Z", "+00:00")).date()
             except ValueError:

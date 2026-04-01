@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 """
-Health check эндпоинт
+Эндпоинт проверки работоспособности
 """
 
 from fastapi import APIRouter, Depends

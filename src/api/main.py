@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Главный файл FastAPI приложения
 """
@@ -47,7 +48,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS middleware
+# Настройка middleware CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # В продакшене указать конкретные origins

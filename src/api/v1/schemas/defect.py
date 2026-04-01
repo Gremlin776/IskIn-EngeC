@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
 """
 Pydantic схемы для модуля дефектов конструкций
 """
 
+from typing import List
 from datetime import date, datetime
 from decimal import Decimal
 from typing import Optional
@@ -121,3 +123,38 @@ class DefectStatsResponse(BaseModel):
     by_class: dict[str, int]
     by_severity: dict[str, int]
     by_status: dict[str, int]
+
+
+# ============================================
+# СХЕМЫ ДЛЯ DETECT ENDPOINT (YOLO)
+# ============================================
+
+
+class BoundingBox(BaseModel):
+    """Bounding box детектированного объекта (x, y, width, height)"""
+    x: float = Field(..., description="Координата X левого верхнего угла")
+    y: float = Field(..., description="Координата Y левого верхнего угла")
+    width: float = Field(..., description="Ширина bounding box")
+    height: float = Field(..., description="Высота bounding box")
+
+
+class DetectedDefectItem(BaseModel):
+    """Детектированный дефект на изображении"""
+    class_name: str = Field(...,
+                            description="Код класса дефекта (напр. 'crack')")
+    class_name_ru: str = Field(..., description="Название на русском")
+    confidence: float = Field(..., ge=0.0, le=1.0,
+                              description="Уверенность модели")
+    bbox: BoundingBox = Field(...,
+                              description="Bounding box [x, y, width, height]")
+    severity: str = Field(..., description="Критичность: low/medium/high")
+
+
+class DetectResponse(BaseModel):
+    """Ответ endpoint детекции дефектов YOLO"""
+    defects: List[DetectedDefectItem] = Field(
+        ..., description="Список найденных дефектов")
+    total_defects: int = Field(..., description="Общее количество дефектов")
+    processing_time_ms: float = Field(..., description="Время обработки в мс")
+    image_with_boxes: str = Field(...,
+                                  description="Изображение с bbox в base64")

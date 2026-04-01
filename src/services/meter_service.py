@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Сервис для учёта показаний счётчиков
 """
@@ -25,7 +26,7 @@ logger = get_logger(__name__)
 class MeterService:
     """
     Сервис для управления счётчиками и показаниями.
-    
+
     Бизнес-логика:
     - Добавление показаний
     - OCR обработка фото
@@ -111,7 +112,8 @@ class MeterService:
             source=source,
         )
 
-        logger.info(f"Добавлено показание для счётчика {meter_id}: {reading_value}")
+        logger.info(
+            f"Добавлено показание для счётчика {meter_id}: {reading_value}")
         return reading
 
     async def process_meter_photo(
@@ -122,7 +124,7 @@ class MeterService:
     ) -> MeterReading:
         """
         Обработка фото счётчика через OCR.
-        
+
         Процесс:
         1. OCR распознавание текста
         2. Парсинг значения
@@ -140,16 +142,16 @@ class MeterService:
         try:
             # OCR обработка
             ocr_result = await self.ocr_engine.process_image(str(image_path))
-            
+
             # Парсинг значения
             parsed_value = self.ocr_engine.parse_reading(ocr_result)
-            
+
             if parsed_value is None:
                 raise MLException("Не удалось распознать показание счётчика")
 
             # Логирование
             processing_time = int((time.time() - start_time) * 1000)
-            await self.cr_log_repository.log_processing(
+            await self.ocr_log_repository.log_processing(
                 original_image=str(image_path),
                 status="success",
                 ocr_raw_text=ocr_result.get("text", ""),
@@ -238,12 +240,12 @@ class MeterService:
     ) -> MeterReading | None:
         """Верификация показания"""
         from sqlalchemy import select
-        
+
         result = await self.session.execute(
             select(MeterReading).where(MeterReading.id == reading_id)
         )
         reading = result.scalar_one_or_none()
-        
+
         if reading is None:
             raise NotFoundException("Показание", reading_id)
 
@@ -254,5 +256,6 @@ class MeterService:
         await self.session.flush()
         await self.session.refresh(reading)
 
-        logger.info(f"Показание {reading_id} верифицировано пользователем {verified_by}")
+        logger.info(
+            f"Показание {reading_id} верифицировано пользователем {verified_by}")
         return reading

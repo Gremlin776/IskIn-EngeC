@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 """
@@ -22,7 +23,7 @@ logger = get_logger(__name__)
 class ReportService:
     """
     Сервис для генерации отчётов и актов.
-    
+
     Бизнес-логика:
     - Генерация номера отчёта
     - Сбор данных из БД
@@ -72,7 +73,7 @@ class ReportService:
     ) -> Report:
         """Создание объекта отчёта в БД"""
         from sqlalchemy import insert
-        
+
         # Прямая вставка для обхода валидации
         stmt = insert(Report).values(
             report_number=self._generate_report_number(),
@@ -81,7 +82,7 @@ class ReportService:
             report_type=report_type,
             **kwargs,
         ).returning(Report)
-        
+
         result = await self.session.execute(stmt)
         report = result.scalar_one()
         await self.session.flush()
@@ -96,7 +97,7 @@ class ReportService:
     ) -> Report:
         """
         Генерация отчёта по ремонтным работам.
-        
+
         Собирает:
         - Список заявок за период
         - Статистику по статусам
@@ -104,25 +105,45 @@ class ReportService:
         """
         from sqlalchemy import select, func
         from src.models.repair import RepairRequest
-        
+
         # Сбор данных
         query = select(RepairRequest).where(
-            RepairRequest.created_at >= datetime.combine(period_start, datetime.min.time()),
-            RepairRequest.created_at <= datetime.combine(period_end, datetime.max.time()),
+            RepairRequest.created_at >= datetime.combine(
+                period_start, datetime.min.time()),
+            RepairRequest.created_at <= datetime.combine(
+                period_end, datetime.max.time()),
         )
-        
+
         if building_id:
             from src.models.building import Premise
-            query = query.join(Premise).where(Premise.building_id == building_id)
-        
+            query = query.join(Premise).where(
+                Premise.building_id == building_id)
+
         result = await self.session.execute(query)
         repairs = result.scalars().all()
 
+        # Сбор контекста для отчёта
+        context = {
+            "building_name": f"Здание #{building_id}" if building_id else "Все здания",
+            "repair_requests": [
+                {
+                    "request_number": r.request_number,
+                    "title": r.title,
+                    "status": r.status,
+                    "cost": float(r.cost) if r.cost else 0,
+                }
+                for r in repairs[:20]
+            ],
+            "period_start": period_start.strftime("%d.%m.%Y"),
+            "period_end": period_end.strftime("%d.%m.%Y"),
+        }
+
         # Формирование промпта для LLM
-        prompt = self._build_repair_report_prompt(repairs, period_start, period_end)
-        
-        # Генерация через LLM
-        content = await self.llm_client.generate_report(prompt)
+        prompt = self._build_repair_report_prompt(
+            repairs, period_start, period_end)
+
+        # Генерация через LLM с контекстом
+        content = await self.llm_client.generate_report(prompt, context)
 
         # Создание отчёта
         report = await self._create_report_entity(
@@ -149,20 +170,20 @@ class ReportService:
     ) -> Report:
         """
         Генерация отчёта по обследованию.
-        
+
         Собирает:
         - Информацию об обследовании
         - Список дефектов
         - Фотографии
         """
         from src.models.defect import Inspection, DetectedDefect
-        
+
         # Получение обследования
         result = await self.session.execute(
             select(Inspection).where(Inspection.id == inspection_id)
         )
         inspection = result.scalar_one_or_none()
-        
+
         if inspection is None:
             raise NotFoundException("Обследование", inspection_id)
 
@@ -173,11 +194,24 @@ class ReportService:
         )
         defects = result.scalars().all()
 
+        # Сбор контекста для отчёта
+        context = {
+            "building_name": inspection.building.name if inspection.building else "Н/Д",
+            "defects": [
+                {
+                    "class_name": d.defect_class.name if d.defect_class else "Н/Д",
+                    "confidence": float(d.confidence) if d.confidence else 0,
+                    "severity": d.severity,
+                }
+                for d in defects[:20]
+            ],
+        }
+
         # Формирование промпта
         prompt = self._build_inspection_report_prompt(inspection, defects)
-        
-        # Генерация через LLM
-        content = await self.llm_client.generate_report(prompt)
+
+        # Генерация через LLM с контекстом
+        content = await self.llm_client.generate_report(prompt, context)
 
         # Создание отчёта
         report = await self._create_report_entity(
@@ -192,7 +226,8 @@ class ReportService:
 
         await self._add_report_entity(report.id, "inspection", inspection_id)
 
-        logger.info(f"Сгенерирован отчёт по обследованию: {report.report_number}")
+        logger.info(
+            f"Сгенерирован отчёт по обследованию: {report.report_number}")
         return report
 
     async def generate_monthly_report(
@@ -211,11 +246,11 @@ class ReportService:
             period_end = date(year, month + 1, 1) - timedelta(days=1)
 
         # Сбор данных по всем модулям
-        prompt = await self._build_monthly_report_prompt(
+        prompt, context = await self._build_monthly_report_prompt(
             period_start, period_end
         )
-        
-        content = await self.llm_client.generate_report(prompt)
+
+        content = await self.llm_client.generate_report(prompt, context)
 
         report = await self._create_report_entity(
             user_id=user_id,
@@ -323,8 +358,10 @@ class ReportService:
         # Статистика ремонтов
         repair_result = await self.session.execute(
             select(func.count()).select_from(RepairRequest).where(
-                RepairRequest.created_at >= datetime.combine(period_start, datetime.min.time()),
-                RepairRequest.created_at <= datetime.combine(period_end, datetime.max.time()),
+                RepairRequest.created_at >= datetime.combine(
+                    period_start, datetime.min.time()),
+                RepairRequest.created_at <= datetime.combine(
+                    period_end, datetime.max.time()),
             )
         )
         repair_count = repair_result.scalar() or 0
@@ -332,21 +369,43 @@ class ReportService:
         # Статистика дефектов
         defect_result = await self.session.execute(
             select(func.count()).select_from(DetectedDefect).where(
-                DetectedDefect.created_at >= datetime.combine(period_start, datetime.min.time()),
-                DetectedDefect.created_at <= datetime.combine(period_end, datetime.max.time()),
+                DetectedDefect.created_at >= datetime.combine(
+                    period_start, datetime.min.time()),
+                DetectedDefect.created_at <= datetime.combine(
+                    period_end, datetime.max.time()),
             )
         )
         defect_count = defect_result.scalar() or 0
 
-        return f"""
+        # Количество зданий
+        from src.models.building import Building
+        building_result = await self.session.execute(
+            select(func.count()).select_from(Building)
+        )
+        building_count = building_result.scalar() or 0
+
+        # Контекст для шаблонной генерации
+        context = {
+            "building_name": f"{building_count} зданий",
+            "premise_count": 0,
+            "repair_requests": [],
+            "meters": [],
+            "defects": [],
+            "period_start": period_start.strftime("%d.%m.%Y"),
+            "period_end": period_end.strftime("%d.%m.%Y"),
+        }
+
+        prompt = f"""
 Создай ежемесячный сводный отчёт за период с {period_start} по {period_end}.
 
 Ключевые метрики:
+- Зданий в управлении: {building_count}
 - Ремонтных заявок: {repair_count}
 - Детектированных дефектов: {defect_count}
 
 Сформируй структурированный отчёт для руководства с анализом и рекомендациями.
 """
+        return prompt, context
 
     async def _add_report_entity(
         self,
@@ -356,7 +415,7 @@ class ReportService:
     ) -> None:
         """Добавление связи отчёта с объектом"""
         from sqlalchemy import insert
-        
+
         stmt = insert(ReportEntity).values(
             report_id=report_id,
             entity_type=entity_type,
@@ -367,7 +426,7 @@ class ReportService:
     async def get_report(self, report_id: int) -> Report | None:
         """Получение отчёта"""
         from sqlalchemy import select
-        
+
         result = await self.session.execute(
             select(Report).where(Report.id == report_id)
         )
@@ -378,7 +437,7 @@ class ReportService:
         report = await self.get_report(report_id)
         if report is None:
             return False
-        
+
         await self.session.delete(report)
         await self.session.flush()
         return True

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Главный роутер API
 """
@@ -18,7 +19,7 @@ from src.api.v1.endpoints import (
 # Роутер API v1
 api_router = APIRouter()
 
-# Health check
+# Проверка работоспособности сервиса
 api_router.include_router(health.router, tags=["Health"])
 
 # Модули

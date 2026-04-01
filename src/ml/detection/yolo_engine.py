@@ -1,4 +1,5 @@
-﻿"""
+# -*- coding: utf-8 -*-
+"""
 YOLOv8 обёртка для детекции дефектов.
 """
 
@@ -98,7 +99,8 @@ class YOLODefectEngine(BaseMLModel[np.ndarray, list[dict[str, Any]]]):
             )
 
         if payload.size == 0:
-            raise MLException("Передано пустое изображение", model_name=self.meta.name)
+            raise MLException("Передано пустое изображение",
+                              model_name=self.meta.name)
 
         if payload.ndim not in (2, 3):
             raise MLException(
@@ -116,9 +118,11 @@ class YOLODefectEngine(BaseMLModel[np.ndarray, list[dict[str, Any]]]):
         """Запускает инференс YOLO и возвращает стандартизированный список детекций."""
 
         if self._model is None:
-            raise MLException("YOLO-движок не загружен", model_name=self.meta.name)
+            raise MLException("YOLO-движок не загружен",
+                              model_name=self.meta.name)
 
-        conf = float(kwargs.get("confidence_threshold", self.config.confidence_threshold))
+        conf = float(kwargs.get("confidence_threshold",
+                     self.config.confidence_threshold))
         iou = float(kwargs.get("iou_threshold", self.config.iou_threshold))
         imgsz = int(kwargs.get("image_size", self.config.image_size))
         max_det = int(kwargs.get("max_detections", self.config.max_detections))
@@ -147,7 +151,8 @@ class YOLODefectEngine(BaseMLModel[np.ndarray, list[dict[str, Any]]]):
         """Прогревает YOLO-модель фиктивным кадром."""
 
         if self._model is None:
-            raise MLException("YOLO-движок не загружен", model_name=self.meta.name)
+            raise MLException("YOLO-движок не загружен",
+                              model_name=self.meta.name)
 
         warmup_image = sample
         if warmup_image is None:
@@ -170,6 +175,19 @@ class YOLODefectEngine(BaseMLModel[np.ndarray, list[dict[str, Any]]]):
                 model_name=self.meta.name,
             ) from exc
 
+    def detect(self, image: np.ndarray, **kwargs: Any) -> list[dict[str, Any]]:
+        """
+        Публичный метод для детекции дефектов на изображении.
+
+        Args:
+            image: Изображение в формате OpenCV (BGR, numpy array)
+            **kwargs: Дополнительные параметры для инференса
+
+        Returns:
+            Список найденных дефектов со стандартизированной структурой
+        """
+        return self.predict(image, **kwargs)
+
     def _resolve_device(self) -> str:
         """Определяет устройство выполнения инференса."""
 
@@ -183,7 +201,8 @@ class YOLODefectEngine(BaseMLModel[np.ndarray, list[dict[str, Any]]]):
         cfg = self.config
 
         if not cfg.weights_path.strip():
-            raise MLException("weights_path не может быть пустым", model_name="yolo_defect_engine")
+            raise MLException("weights_path не может быть пустым",
+                              model_name="yolo_defect_engine")
 
         if not (0.0 < cfg.confidence_threshold <= 1.0):
             raise MLException(
@@ -198,10 +217,12 @@ class YOLODefectEngine(BaseMLModel[np.ndarray, list[dict[str, Any]]]):
             )
 
         if cfg.image_size < 64:
-            raise MLException("image_size должен быть >= 64", model_name="yolo_defect_engine")
+            raise MLException("image_size должен быть >= 64",
+                              model_name="yolo_defect_engine")
 
         if cfg.max_detections < 1:
-            raise MLException("max_detections должен быть >= 1", model_name="yolo_defect_engine")
+            raise MLException("max_detections должен быть >= 1",
+                              model_name="yolo_defect_engine")
 
     def _normalize_results(self, results: Any) -> list[dict[str, Any]]:
         """Преобразует ответ Ultralytics в единый API-формат."""

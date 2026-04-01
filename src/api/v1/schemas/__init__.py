@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Pydantic схемы API v1
 """
@@ -43,36 +44,36 @@ from src.api.v1.schemas.predictive import (
 )
 
 __all__ = [
-    # Common
+    # Общие схемы
     "ResponseModel",
     "PaginatedResponse",
     "HealthResponse",
-    # Repair
+    # Схемы заявок на ремонт
     "RepairRequestCreate",
     "RepairRequestUpdate",
     "RepairRequestResponse",
     "RepairPhotoCreate",
     "RepairCommentCreate",
     "RepairStatsResponse",
-    # Meter
+    # Схемы учёта показаний
     "MeterCreate",
     "MeterUpdate",
     "MeterResponse",
     "MeterReadingCreate",
     "MeterReadingResponse",
     "MeterStatsResponse",
-    # Defect
+    # Схемы инспекций и дефектов
     "InspectionCreate",
     "InspectionUpdate",
     "InspectionResponse",
     "DefectResponse",
     "DefectReviewRequest",
     "DefectStatsResponse",
-    # Report
+    # Схемы отчётности
     "ReportCreate",
     "ReportResponse",
     "ReportGenerateRequest",
-    # Predictive
+    # Схемы предиктивной аналитики
     "PredictionResponse",
     "RiskRatingResponse",
     "PredictiveAnalyzeRequest",

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Seeder для заполнения БД тестовыми данными
 """
@@ -197,6 +198,9 @@ class Seeder:
                 premises.append(premise)
 
         return premises
+
+
+# Совместимость с ожидаемым именем в проверке
 
     async def seed_repair_types(self) -> list[RepairType]:
         """Создание типов ремонтных работ"""
@@ -692,7 +696,7 @@ class Seeder:
         print(
             f"   Создано: {len(defect_classes)}, Пропущено: {self.skipped_count.get('defect_classes', 0)}")
 
-        # Commit
+        # Фиксация транзакции в базе данных
         await self.session.commit()
 
         print("-" * 60)
@@ -737,3 +741,5 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+DatabaseSeeder = Seeder
