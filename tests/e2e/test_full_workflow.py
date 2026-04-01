@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import io
 import pytest
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 from fastapi import FastAPI
 from sqlalchemy import select
 
@@ -37,7 +37,12 @@ async def async_client(test_app: FastAPI, db_session, seed_data):
     test_app.dependency_overrides[get_db] = override_get_db
     test_app.dependency_overrides[get_current_user] = override_get_current_user
 
-    async with AsyncClient(app=test_app, base_url="http://test") as client:
+    transport = ASGITransport(app=test_app)
+    async with AsyncClient(
+        transport=transport,
+        base_url="http://test",
+        follow_redirects=True,
+    ) as client:
         yield client
 
     test_app.dependency_overrides.clear()

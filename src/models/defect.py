@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Модели детекции дефектов конструкций
 """
@@ -12,6 +13,7 @@ from sqlalchemy import (
     Text,
     Date,
     CheckConstraint,
+    func,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -172,7 +174,8 @@ class InspectionPhoto(BaseModel):
     )
     uploaded_at: Mapped[datetime] = mapped_column(
         DateTime,
-        default="now()",
+        default=datetime.utcnow,
+        server_default=func.now(),
     )
 
     # Связи
